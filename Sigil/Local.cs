@@ -25,7 +25,7 @@ namespace Sigil
         public Type LocalType { get; private set; }
 
         internal TypeOnStack StackType { get; private set; }
-        internal ushort Index { get; private set; }
+        public ushort Index { get; private set; }
 
         internal DeclareLocallDelegate LocalDel { get; private set; }
 

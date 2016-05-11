@@ -18,7 +18,9 @@ namespace Sigil
         /// </summary>
         public Type ParameterType { get; private set; }
 
-        internal Parameter(int pos, Type type)
+        public string Name { get; }
+
+        internal Parameter(int pos, Type type, string name)
         {
             Position = pos;
             ParameterType = type;
@@ -26,7 +28,7 @@ namespace Sigil
 
         internal static Parameter For(ParameterInfo p)
         {
-            return new Parameter(p.Position, p.ParameterType);
+            return new Parameter(p.Position, p.ParameterType, p.Name);
         }
 
         /// <summary>

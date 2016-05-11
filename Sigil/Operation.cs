@@ -58,6 +58,16 @@ namespace Sigil
         public bool IsFinallyBlockEnd { get; internal set; }
 
         /// <summary>
+        /// This operation marks the beginning of a fault block
+        /// </summary>
+        public bool IsFaultBlockStart { get; internal set; }
+
+        /// <summary>
+        /// This operation marks the end of a fault block,
+        /// </summary>
+        public bool IsFaultBlockEnd { get; internal set; }
+
+        /// <summary>
         /// This operation marks a label, the name of the label is given in LabelName.
         /// </summary>
         public bool IsMarkLabel { get; internal set; }
@@ -93,6 +103,9 @@ namespace Sigil
 
         internal PrefixTracker Prefixes { get; set; }
 
+        internal int StartPosition { get; set; }
+        internal int Size { get; set; }
+
         /// <summary>
         /// A string representation of this Operation.
         /// </summary>
@@ -126,6 +139,16 @@ namespace Sigil
             if (IsFinallyBlockEnd)
             {
                 return "--End Finally Block--";
+            }
+
+            if (IsFaultBlockStart)
+            {
+                return "--Start Fault Block--";
+            }
+
+            if (IsFaultBlockEnd)
+            {
+                return "--End Fault Block--";
             }
 
             if (IsMarkLabel)

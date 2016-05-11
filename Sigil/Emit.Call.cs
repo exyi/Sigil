@@ -152,7 +152,7 @@ namespace Sigil
         /// 
         /// When calling VarArgs methods, arglist should be set to the types of the extra parameters to be passed.
         /// </summary>
-        public Emit<DelegateType> Call(MethodInfo method, Type[] arglist = null)
+        public Emit<DelegateType> Call(MethodBase method, Type[] arglist = null)
         {
             if (method == null)
             {
@@ -187,7 +187,7 @@ namespace Sigil
                 expectedParams.Insert(0, TypeOnStack.Get(declaring));
             }
 
-            var resultType = method.ReturnType == typeof(void) ? null : TypeOnStack.Get(method.ReturnType);
+            var resultType = ((method as MethodInfo)?.ReturnType ?? typeof(void)) == typeof(void) ? null : TypeOnStack.Get(((MethodInfo)method).ReturnType);
 
             var firstParamIsThis =
                 HasFlag(method.CallingConvention, CallingConventions.HasThis) ||
@@ -211,8 +211,15 @@ namespace Sigil
                     };
             }
 
-            UpdateState(OpCodes.Call, method, ((LinqArray<ParameterInfo>)method.GetParameters()).Select(s => s.ParameterType).AsEnumerable(), Wrap(transitions, "Call"), firstParamIsThis: firstParamIsThis, arglist: arglist);
+            if (method is MethodInfo)
+            {
+                UpdateState(OpCodes.Call, (MethodInfo)method, ((LinqArray<ParameterInfo>)method.GetParameters()).Select(s => s.ParameterType).AsEnumerable(), Wrap(transitions, "Call"), firstParamIsThis: firstParamIsThis, arglist: arglist);
+            }
+            else
+            {
+                UpdateState(OpCodes.Call, (ConstructorInfo)method, ((LinqArray<ParameterInfo>)method.GetParameters()).Select(s => s.ParameterType).AsEnumerable(), Wrap(transitions, "Call"));
 
+            }
             return this;
         }
 
