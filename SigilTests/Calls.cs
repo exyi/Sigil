@@ -426,5 +426,30 @@ namespace SigilTests
             Assert.AreEqual(del(3, 0), 6);
             Assert.IsTrue(instr.Contains("tail."));
         }
+
+        [TestMethod]
+        public void MissingBoxDoesntFailValidation()
+        {
+            try
+            {
+                var mtd = typeof(string).GetMethod("Format", new[] { typeof(string), typeof(object) });
+
+                var il = Emit<Action>.NewDynamicMethod();
+                il.LoadConstant("{0}");
+                il.LoadConstant(3);
+                il.Call(mtd);
+                il.Pop();
+                il.Return();
+
+                var del = il.CreateDelegate();
+
+                del();
+                Assert.Fail("Shouldn't be possible");
+            }
+            catch (SigilVerificationException e)
+            {
+                Assert.AreEqual("Call expected a System.Object; found int", e.Message);
+            }
+        }
     }
 }

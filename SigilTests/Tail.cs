@@ -49,6 +49,55 @@ namespace SigilTests
             Assert.AreEqual(result, helloWorld);
         }
 
+        class _TailBugWithMismatchedReturnTypes
+        {
+            public string String { get; set; }
+        }
 
+        [TestMethod]
+        public void TailBugWithMismatchedReturnTypes()
+        {
+            var emit = Emit<Func<_TailBugWithMismatchedReturnTypes>>.NewDynamicMethod();
+
+            emit.NewObject<_TailBugWithMismatchedReturnTypes>(); // obj
+
+            var prop = typeof(_TailBugWithMismatchedReturnTypes).GetProperty("String");
+            emit.Duplicate();                   // obj obj
+            emit.LoadConstant("please work");   // obj obj string
+            emit.CallVirtual(prop.SetMethod);   // obj
+
+            emit.Return();
+
+            string ops;
+            var f = emit.CreateDelegate(out ops);
+
+            Assert.AreEqual("newobj Void .ctor()\r\ndup\r\nldstr 'please work'\r\ncallvirt Void set_String(System.String)\r\nret\r\n", ops);
+
+            var obj = f();
+            Assert.AreEqual("please work", obj.String);
+        }
+
+        static string _TailCallReturnsAssignableButDifferent(int ignored)
+        {
+            return "hello";
+        }
+
+        [TestMethod]
+        public void TailCallReturnsAssignableButDifferent()
+        {
+            var mtd = typeof(Tail).GetMethod("_TailCallReturnsAssignableButDifferent", BindingFlags.Static | BindingFlags.NonPublic);
+
+            var emit = Emit<Func<int, object>>.NewDynamicMethod();
+            emit.LoadArgument(0);
+            emit.Call(mtd);
+            emit.Return();
+
+            string ops;
+            var del = emit.CreateDelegate(out ops);
+
+            Assert.AreEqual("ldarg.0\r\ntail.call System.String _TailCallReturnsAssignableButDifferent(Int32)\r\nret\r\n", ops);
+
+            Assert.AreEqual("hello", del(-1));
+        }
     }
 }

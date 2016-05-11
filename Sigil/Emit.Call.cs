@@ -47,6 +47,25 @@ namespace Sigil
 #endif
                     if (call.TakesByRefArgs()) continue;
 
+                    var callReturns = call.MethodReturnType;
+                    var delegateReturns = ReturnType.Type;
+
+                    // the method's return types not matching
+                    //   means we can't just turn the call into a jump
+                    //   since _something_ has to preceed or survive the call to
+                    //   make the ret legal
+                    if (!delegateReturns.IsAssignableFrom(callReturns)) continue;
+
+                    // there's one case not being handled explicitly here,
+                    //   which is the call must consume the _entire_ stack.
+                    // we don't have to asset it because the return type
+                    //   comparison is sufficient:
+                    //     - if the types match, the stack must be empty 
+                    //         or the following ret will fail to verify (since 
+                    //         there's an extra item of the corret type on the stack)
+                    //     - if the types _don't_ match, we've already bailed on the
+                    //         tail injection
+
                     InsertInstruction(callIx, OpCodes.Tailcall);
                     i++;
                 }
