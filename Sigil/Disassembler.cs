@@ -946,6 +946,8 @@ namespace Sigil
 
         private static Label ChooseLabel(int absAddr, LabelTracker labels, List<Label> labelAccumulator)
         {
+            Debug.Assert(absAddr >= 0);
+            Debug.Assert(absAddr < 1000000); // 1MB method should be enoch for anyone
             var name = "_label" + absAddr;
 
             var ret = LinqAlternative.Where(labelAccumulator, l => l.Name == name).SingleOrDefault();
@@ -3563,11 +3565,11 @@ namespace Sigil
                 case OperandType.InlineSwitch:
                     advance += 4;
                     var len = ReadInt(cil, operandStart);
-                    var offset1 = instrStart + len * 4;
+                    var offset1 = operandStart + 4 + (len * 4);
                     var ret = new object[len];
                     for (var i = 0; i < len; i++)
                     {
-                        var step = ReadInt(cil, operandStart + advance);
+                        var step = ReadInt(cil, operandStart + (i * 4) + 4);
                         advance += 4;
                         ret[i] = offset1 + step;
                     }
