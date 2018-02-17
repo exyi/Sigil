@@ -1,5 +1,4 @@
-﻿#if !COREFX // see https://github.com/dotnet/corefx/issues/4543 item 4
-using Sigil.Impl;
+﻿using Sigil.Impl;
 using System;
 using System.Reflection.Emit;
 
@@ -41,4 +40,3 @@ namespace Sigil
         }
     }
 }
-#endif

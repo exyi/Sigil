@@ -43,9 +43,9 @@ namespace Sigil.Impl
         {
             return type.GetTypeInfo().IsInterface;
         }
-        public static Type AsType(System.Reflection.Emit.TypeBuilder type)
+        public static Type AsType(this System.Reflection.Emit.TypeBuilder type)
         {
-            return type == null ? null : type.AsType();
+            return type;
         }
         public static Module GetModule(Type type)
         {
